@@ -1,0 +1,14 @@
+# Lab server config. Copy to config.toml on the server and fill in (paths are on the SERVER).
+# Relative paths are resolved against this file's folder.
+
+host = "0.0.0.0"   # listen on the lab network; use "127.0.0.1" to allow only local/SSH-tunnel access
+port = 8770
+
+# The only place the server writes: one JSON + one .log.jsonl per (clip, annotator).
+labels_dir = "/home/exx/vast/anirudh/web_gui/labels"
+
+# Clip folders, served read-only: <stem>.mp4 (H.264) + <stem>[.tracked|.predictions].slp.
+# Convert mp4v clips first: uv run python -m webgui_tools.transcode OUT_DIR IN.mp4 ...
+[datasets]
+batch02_identity = "/home/exx/vast/anirudh/web_gui/data/batch02_identity"
+batch04_six_hours = "/home/exx/vast/leo/2026-07-28-HCM-Sleep/gt_release/batch04_six_hours"

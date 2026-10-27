@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HCM Labeler</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Start: who you are, which dataset, which clip -->
+  <section id="start" class="screen">
+    <header class="bar"><h1>HCM Labeler</h1><span class="muted">identity proofreading</span></header>
+    <div class="start-body">
+      <p id="unsupported" class="warn" hidden>
+        Please open this page in Chrome or Edge. Only they can read clips from, and save labels to,
+        folders on your mounted VAST share.
+      </p>
+      <div class="field">
+        <label for="annotator">Your name</label>
+        <input id="annotator" autocomplete="name" placeholder="e.g. renee">
+      </div>
+      <!-- folder mode (GitHub Pages): clips and labels live in folders on the user's VAST mount -->
+      <div class="field folder-mode" hidden>
+        <label>Data folder <span class="muted">(clips: .mp4 + .slp on your mounted VAST share, e.g. talmo/anirudh/web_gui/data/batch02_identity)</span></label>
+        <div class="row">
+          <button id="pick-data">Choose folder…</button>
+          <button id="reopen-data" hidden></button>
+          <span id="data-name" class="muted"></span>
+        </div>
+      </div>
+      <div class="field folder-mode" hidden>
+        <label>Labels folder <span class="muted">(where your labels are saved, e.g. talmo/anirudh/web_gui/labels; nothing is written to the data folder)</span></label>
+        <div class="row">
+          <button id="pick-labels">Choose folder…</button>
+          <button id="reopen-labels" hidden></button>
+          <span id="labels-name" class="muted"></span>
+        </div>
+      </div>
+      <!-- server mode: datasets are configured on the lab server -->
+      <div class="field server-mode" hidden>
+        <label for="dataset">Dataset</label>
+        <select id="dataset"></select>
+      </div>
+      <table id="items" hidden>
+        <thead><tr><th>Clip</th><th>Pose file</th><th>Labels</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p id="start-msg" class="muted"></p>
+    </div>
+  </section>
+
+  <!-- Labeling -->
+  <section id="label" class="screen" hidden>
+    <header class="bar">
+      <button id="back" title="Back to clip list">←</button>
+      <strong id="item-name"></strong>
+      <span id="who" class="muted"></span>
+      <span id="save-chip" class="chip">saved</span>
+      <span class="spacer"></span>
+      <label class="muted">speed
+        <select id="speed"><option>0.25</option><option>0.5</option><option selected>1</option><option>2</option><option>4</option><option>8</option></select>
+      </label>
+      <label class="muted">black <input id="black" type="range" min="0" max="254" value="0"></label>
+      <label class="muted">white <input id="white" type="range" min="1" max="255" value="255"></label>
+      <label class="muted"><input id="show-poses" type="checkbox" checked> poses (P)</label>
+      <label class="muted"><input id="show-deleted" type="checkbox"> deleted (D)</label>
+      <button id="help-btn" title="Keyboard shortcuts">?</button>
+    </header>
+    <div class="work">
+      <div class="video-wrap">
+        <canvas id="video"></canvas>
+        <div id="loading" class="overlay" hidden></div>
+      </div>
+      <aside id="panel"></aside>
+    </div>
+    <div class="transport">
+      <button id="play" title="Play/pause (Space)">▶</button>
+      <span>frame <input id="frame-input" type="number" min="0" step="1"> / <span id="n-frames"></span></span>
+      <span id="time" class="muted"></span>
+      <span id="range-readout" class="muted"></span>
+    </div>
+    <canvas id="timeline"></canvas>
+  </section>
+
+  <div id="help" class="modal" hidden>
+    <div class="modal-body">
+      <h2>Keys</h2>
+      <table>
+        <tr><td>Space</td><td>play / pause</td></tr>
+        <tr><td>← →</td><td>±1 frame (Shift ±1 s, Alt ±10 s); Home / End</td></tr>
+        <tr><td>click animal</td><td>select it (or click a lane name)</td></tr>
+        <tr><td>1–9</td><td>make the selected animal track N from here to the end, or over the selected range. If N is already present it becomes a <b>swap</b>, otherwise a <b>relabel</b></td></tr>
+        <tr><td>Alt + 1–9</td><td>reassign only this instance in this frame</td></tr>
+        <tr><td>Delete</td><td>delete the selected instance in this frame</td></tr>
+        <tr><td>Shift + Delete</td><td>delete the selected track over the range (or from here to the end)</td></tr>
+        <tr><td>drag on timeline, [ ]</td><td>select a range / set its start or end at the playhead; Esc clears</td></tr>
+        <tr><td>U</td><td>"cannot tell" over the range (asks for a note)</td></tr>
+        <tr><td>Enter</td><td>mark the range (or the visible timeline) as reviewed</td></tr>
+        <tr><td>N / Shift+N</td><td>next / previous event</td></tr>
+        <tr><td>Ctrl/⌘ Z, Shift+Z</td><td>undo / redo</td></tr>
+        <tr><td>Ctrl/⌘ S</td><td>save now (also autosaves)</td></tr>
+        <tr><td>P / D</td><td>toggle poses / show deleted instances</td></tr>
+      </table>
+      <p class="muted">Leave genuinely ambiguous moments as they are and mark them with U. An honest "cannot tell" is a real answer.</p>
+      <button id="help-close">Close</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/core/app.js"></script>
+</body>
+</html>

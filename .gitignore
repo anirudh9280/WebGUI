@@ -1,0 +1,9 @@
+.cache/
+labels/
+node_modules/
+__pycache__/
+.venv/
+.pytest_cache/
+*.pyc
+.DS_Store
+config.toml

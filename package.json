@@ -1,0 +1,10 @@
+{
+  "name": "webgui",
+  "private": true,
+  "type": "module",
+  "description": "Talmo lab HCM ground-truth labeler (browser app served by the lab server)",
+  "scripts": {
+    "test": "node --test tests/js/",
+    "serve": "cd tools && uv run python -m webgui_tools.server --config ../config.dev.toml"
+  }
+}

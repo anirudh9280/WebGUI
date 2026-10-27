@@ -1,0 +1,7 @@
+# Local development: npm run serve  ->  http://127.0.0.1:8770
+host = "127.0.0.1"
+port = 8770
+labels_dir = ".cache/labels"
+
+[datasets]
+batch02_identity = ".cache/media/batch02_identity"

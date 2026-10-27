@@ -1,0 +1,19 @@
+# systemd *user* service for the lab server (same setup as Tom's labeler).
+# Install on the server:
+#   mkdir -p ~/.config/systemd/user && cp deploy/webgui.service ~/.config/systemd/user/
+#   (edit WorkingDirectory below to where Web_GUI is checked out)
+#   systemctl --user daemon-reload && systemctl --user enable --now webgui
+#   sudo loginctl enable-linger $USER      # keep running after logout / across reboots
+#   journalctl --user -u webgui -f          # logs
+[Unit]
+Description=HCM Labeler (Web_GUI)
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/Web_GUI/tools
+ExecStart=%h/.local/bin/uv run python -m webgui_tools.server --config ../config.toml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

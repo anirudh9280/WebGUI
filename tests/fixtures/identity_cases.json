@@ -1,0 +1,80 @@
+{
+  "about": "Shared semantics for identity events. frames[f] lists the source track of each instance in frame f (file order); expected[f] lists final tracks, null = deleted. Run by tests/js/identity.test.mjs and tools/tests/test_identity.py.",
+  "cases": [
+    {
+      "name": "no events is identity",
+      "frames": [[0, 1], [0, 1], [1, 0]],
+      "events": [],
+      "expected": [[0, 1], [0, 1], [1, 0]]
+    },
+    {
+      "name": "swap to end",
+      "frames": [[0, 1], [0, 1], [0, 1], [0, 1]],
+      "events": [{"kind": "map", "f0": 2, "f1": null, "map": {"0": 1, "1": 0}}],
+      "expected": [[0, 1], [0, 1], [1, 0], [1, 0]]
+    },
+    {
+      "name": "swap on a bounded range",
+      "frames": [[0, 1], [0, 1], [0, 1], [0, 1]],
+      "events": [{"kind": "map", "f0": 1, "f1": 3, "map": {"0": 1, "1": 0}}],
+      "expected": [[0, 1], [1, 0], [1, 0], [0, 1]]
+    },
+    {
+      "name": "map is simultaneous, not chained (1->0 and 2->1 together)",
+      "frames": [[0, 1, 2], [1, 2]],
+      "events": [{"kind": "map", "f0": 0, "f1": null, "map": {"1": 0, "2": 1}}],
+      "expected": [[0, 0, 1], [0, 1]]
+    },
+    {
+      "name": "events apply in order to the current state",
+      "frames": [[0, 1], [0, 1]],
+      "events": [
+        {"kind": "map", "f0": 0, "f1": null, "map": {"0": 1, "1": 0}},
+        {"kind": "map", "f0": 1, "f1": null, "map": {"1": 2}}
+      ],
+      "expected": [[1, 0], [2, 0]]
+    },
+    {
+      "name": "delete a track over a range",
+      "frames": [[0, 1, 2], [0, 2], [2]],
+      "events": [{"kind": "map", "f0": 0, "f1": 2, "map": {"2": null}}],
+      "expected": [[0, 1, null], [0, null], [2]]
+    },
+    {
+      "name": "untracked -1 instances can be assigned",
+      "frames": [[0, -1], [-1, 1]],
+      "events": [{"kind": "map", "f0": 0, "f1": null, "map": {"-1": 1}}],
+      "expected": [[0, 1], [1, 1]]
+    },
+    {
+      "name": "deleted instances are not touched by later maps",
+      "frames": [[0, 1], [0, 1]],
+      "events": [
+        {"kind": "map", "f0": 0, "f1": null, "map": {"1": null}},
+        {"kind": "map", "f0": 0, "f1": null, "map": {"1": 0, "0": 1}}
+      ],
+      "expected": [[1, null], [1, null]]
+    },
+    {
+      "name": "instance edit reassigns or deletes one instance",
+      "frames": [[0, 0], [0, 1]],
+      "events": [
+        {"kind": "instance", "f": 0, "i": 1, "dst": 2},
+        {"kind": "instance", "f": 1, "i": 0, "dst": null}
+      ],
+      "expected": [[0, 2], [null, 1]]
+    },
+    {
+      "name": "uncertain changes nothing",
+      "frames": [[0, 1], [0, 1]],
+      "events": [{"kind": "uncertain", "f0": 0, "f1": 2, "tracks": [0, 1], "resolved": "unsure"}],
+      "expected": [[0, 1], [0, 1]]
+    },
+    {
+      "name": "range past the end and empty frames are fine",
+      "frames": [[], [0], []],
+      "events": [{"kind": "map", "f0": 0, "f1": 99, "map": {"0": 3}}],
+      "expected": [[], [3], []]
+    }
+  ]
+}
