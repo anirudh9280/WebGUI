@@ -50,7 +50,11 @@ function readStrings(file, path) {
 }
 
 export function parseSlp(h5, file) {
-  const metaJson = JSON.parse(file.get("metadata").attrs.json.value);
+  const meta = file.get("metadata");
+  if (!meta || !file.get("frames") || !file.get("instances")) {
+    throw new Error("not a readable SLEAP .slp file (missing metadata/frames/instances)");
+  }
+  const metaJson = JSON.parse(meta.attrs.json.value);
   const nodes = metaJson.nodes.map((n) => n.name);
   const sk = metaJson.skeletons?.[0];
   const idToNode = new Map((sk?.nodes ?? []).map((n, k) => [n.id, typeof n.id === "number" ? n.id : k]));
