@@ -163,14 +163,24 @@ export function createIdentityTask(app) {
     const counts = {};
     for (const { e } of events) counts[actionOf(e)] = (counts[actionOf(e)] ?? 0) + 1;
     const reviewedPct = (100 * mergedLength(S.labels.reviewed.map((r) => [r.f0, r.f1]))) / n;
+    const here = S.sel?.k != null && S.sel.f === S.frame;
+    const targets = laneTracks().filter((t) => t !== -1 && t !== S.sel?.track);
     const sel = S.sel
       ? `<div class="sel"><span style="color:${trackColor(S.sel.track)}">■</span> <b>${esc(name(S.sel.track))}</b>
-         ${S.sel.k != null && S.sel.f === S.frame ? "(this instance)" : "(whole track)"}<br>
-         <span class="muted">press 1–9 to assign, Delete to remove</span></div>`
-      : `<div class="sel muted">Click an animal or a lane name to select it.</div>`;
+         ${here ? "(this instance)" : "(whole track)"}
+         <div class="sel-actions">
+           ${targets.map((t) => `<button data-assign="${t}" title="key ${t + 1}" style="border-color:${trackColor(t)}">make ${esc(name(t))}</button>`).join("")}
+           ${here ? '<button data-delete="one" title="key Delete">delete here</button>' : ""}
+           <button data-delete="track" title="key Shift+Delete">delete track ${S.range ? "in range" : "from here"}</button>
+         </div></div>`
+      : `<div class="sel muted">Click an animal in the video, or a lane name on the timeline, to select it.</div>`;
     el.innerHTML = `
       <h3>Selection</h3>${sel}
       <div class="muted" style="margin-top:6px">Range: ${S.range ? `${S.range[0]}–${S.range[1] - 1}` : "from playhead to end"}</div>
+      <div class="sel-actions">
+        <button data-act="uncertain" title="key U">cannot tell…</button>
+        <button data-act="reviewed" title="key Enter">mark reviewed</button>
+      </div>
       <h3>Progress</h3>
       <div class="stats">
         <span>reviewed</span><span>${reviewedPct.toFixed(1)}%</span>
@@ -192,6 +202,11 @@ export function createIdentityTask(app) {
         <button id="dl-json">labels .json</button>
         <button id="done" class="primary">${S.labels.done ? "Done ✓" : "Mark done"}</button>
       </div>`;
+    // Buttons do exactly what the keys do (for people who'd rather click).
+    el.querySelectorAll("[data-assign]").forEach((b) => { b.onclick = () => assign(Number(b.dataset.assign), false); });
+    el.querySelectorAll("[data-delete]").forEach((b) => { b.onclick = () => del(b.dataset.delete === "track"); });
+    el.querySelector('[data-act="uncertain"]').onclick = uncertain;
+    el.querySelector('[data-act="reviewed"]').onclick = markReviewed;
     el.querySelectorAll(".events li").forEach((li) => li.addEventListener("click", (evt) => {
       const id = li.dataset.id;
       const e = S.labels.events.find((x) => x.id === id);

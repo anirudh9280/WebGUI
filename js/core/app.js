@@ -177,6 +177,7 @@ async function openItem(stem) {
         "They are loaded anyway; check them carefully.");
     }
     S.labels = labels ?? emptyLabels({ dataset: S.dataset.name, stem, annotator: S.annotator, tracks: slpData.tracks, source });
+    chip("", labels ? savedText() : "no fixes yet");
     task = createIdentityTask(app);
     task.recompute();
     player.setVideo(video.width, video.height);
@@ -327,7 +328,7 @@ async function saveNow(snap) {
   S.saving = S.store.save(S.labels, { changes: log, snapshot: !!snap })
     .then((updated) => {
       S.labels.updated = updated; // the server's stamp: our base for the next save
-      chip("", "saved");
+      chip("", savedText());
     })
     .catch((e) => {
       console.error(e);
@@ -347,6 +348,8 @@ async function saveNow(snap) {
   return S.saving;
 }
 app.saveNow = saveNow;
+
+const savedText = () => `saved: ${S.labels.events.length} fix${S.labels.events.length === 1 ? "" : "es"}`;
 
 function chip(cls, text) {
   const c = $("#save-chip");
