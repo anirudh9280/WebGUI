@@ -29,8 +29,8 @@ holds only code, and lab video never leaves Salk. The same code can also be serv
 | Key | Does |
 |---|---|
 | click an animal / a lane name | select it |
-| `1`–`9` | make the selected animal track N from the playhead to the end, or over the selected range. A **swap** if N is already there, a **relabel** if not |
-| `Alt`+`1`–`9` | reassign just this instance in this frame |
+| `0`–`9` (or the side-panel buttons) | make the selected animal `mouse_N` (the number in its name) from the playhead to the end, or over the selected range. A **swap** if `mouse_N` is already there, a **relabel** if not |
+| `Alt`+`0`–`9` | reassign just this instance in this frame |
 | `Delete` / `Shift+Delete` | delete this instance in this frame / delete the track over the range |
 | drag on the timeline, `[` `]`, `Esc` | select a range, set its start or end, clear it |
 | `U` | "cannot tell" over the range, with a note |
@@ -42,6 +42,8 @@ The side panel lists every fix. Click one to jump to it, double-click to edit it
 - **uncertain_log.csv** downloads Leo's log format (`clip_id,frame_start,frame_end,what_happened,resolved`).
 - **corrected .slp** is built by a Python command (see "After labeling"); the button shows it.
 - `#item=…&f=…` in the URL reopens a clip at a frame.
+
+**Keys do nothing?** Browser extensions that use number keys, such as **Vimium**, swallow them before the page sees them. Exclude `https://anirudh9280.github.io/*` in the extension's settings, or use the side-panel buttons.
 
 If someone saves the same person's labels from another tab, this tab stops saving and asks you to reload
 instead of overwriting. After the site is updated, press ⌘⇧R once if anything looks out of date.

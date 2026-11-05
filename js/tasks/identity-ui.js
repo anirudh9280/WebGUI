@@ -40,7 +40,7 @@ export function createIdentityTask(app) {
   function lanes() {
     return laneTracks().map((t) => ({
       track: t,
-      label: t === -1 ? "· untracked" : `${t + 1}  ${name(t)}`,
+      label: t === -1 ? "· untracked" : name(t),
       runs: S.runs.get(t) ?? [],
       selected: S.sel?.track === t,
     }));
@@ -80,10 +80,18 @@ export function createIdentityTask(app) {
     return full;
   }
 
-  function assign(dst, onlyThisFrame) {
+  // Number keys follow the number in the track's name (0 -> mouse_0), so the key matches the screen.
+  // A number no track has yet makes a new track (mouse_3, ...).
+  function assignDigit(d, onlyThisFrame) {
+    const t = S.labels.tracks.findIndex((n) => Number(String(n).match(/(\d+)$/)?.[1]) === d);
+    if (t !== -1) return assign(t, onlyThisFrame);
+    assign(S.labels.tracks.length, onlyThisFrame, `mouse_${d}`);
+  }
+
+  function assign(dst, onlyThisFrame, newName) {
     if (!S.sel) return app.toast("Select an animal first (click it, or click a lane name)");
-    // digits past the known tracks create new ones (track_3, ...), in the same undo step
-    const grow = (labels) => { while (labels.tracks.length <= dst) labels.tracks.push(`track_${labels.tracks.length}`); };
+    // a new track is named in the same undo step as the fix that uses it
+    const grow = (labels) => { while (labels.tracks.length <= dst) labels.tracks.push(newName ?? `track_${labels.tracks.length}`); };
     if (onlyThisFrame) {
       const k = selectedInstanceHere();
       if (k == null) return app.toast("Alt+digit needs an animal selected in this frame");
@@ -138,8 +146,8 @@ export function createIdentityTask(app) {
   }
 
   function key(ev) {
-    const m = ev.code.match(/^(Digit|Numpad)([1-9])$/);
-    if (m && !ev.metaKey && !ev.ctrlKey) { assign(Number(m[2]) - 1, ev.altKey); return true; }
+    const m = ev.code.match(/^(Digit|Numpad)([0-9])$/);
+    if (m && !ev.metaKey && !ev.ctrlKey) { assignDigit(Number(m[2]), ev.altKey); return true; }
     if ((ev.key === "Delete" || ev.key === "Backspace") && !ev.metaKey && !ev.ctrlKey) { del(ev.shiftKey); return true; }
     if (ev.code === "KeyU" && !ev.metaKey && !ev.ctrlKey) { uncertain(); return true; }
     if (ev.key === "Enter" && !ev.metaKey && !ev.ctrlKey) { markReviewed(); return true; }
@@ -169,7 +177,7 @@ export function createIdentityTask(app) {
       ? `<div class="sel"><span style="color:${trackColor(S.sel.track)}">■</span> <b>${esc(name(S.sel.track))}</b>
          ${here ? "(this instance)" : "(whole track)"}
          <div class="sel-actions">
-           ${targets.map((t) => `<button data-assign="${t}" title="key ${t + 1}" style="border-color:${trackColor(t)}">make ${esc(name(t))}</button>`).join("")}
+           ${targets.map((t) => `<button data-assign="${t}" title="key ${String(name(t)).match(/(\d+)$/)?.[1] ?? ""}" style="border-color:${trackColor(t)}">make ${esc(name(t))}</button>`).join("")}
            ${here ? '<button data-delete="one" title="key Delete">delete here</button>' : ""}
            <button data-delete="track" title="key Shift+Delete">delete track ${S.range ? "in range" : "from here"}</button>
          </div></div>`
